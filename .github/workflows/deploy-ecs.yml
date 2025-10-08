@@ -1,5 +1,6 @@
 name: deploy-ecs
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
 jobs:
