@@ -1,0 +1,53 @@
+name: deploy-ecs
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: ap-south-1
+      ECR_REPO_NAME: cloud-net8-ecs-cicd
+      CLUSTER_NAME: net8-demo-cluster
+      SERVICE_NAME: weatherapi-svc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Ensure ECR repo exists
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "$ECR_REPO_NAME" >/dev/null
+
+      - name: Get ECR URI
+        id: ecr
+        run: |
+          URI=$(aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" --query 'repositories[0].repositoryUri' --output text)
+          echo "uri=$URI" >> $GITHUB_OUTPUT
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Image (latest + sha)
+        env:
+          ECR_URI: ${{ steps.ecr.outputs.uri }}
+        run: |
+          GIT_SHA=${GITHUB_SHA::12}
+          docker build -t "$ECR_URI:latest" -t "$ECR_URI:$GIT_SHA" .
+          docker push "$ECR_URI:latest"
+          docker push "$ECR_URI:$GIT_SHA"
+
+      - name: Force new ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster "$CLUSTER_NAME" \
+            --service "$SERVICE_NAME" \
+            --force-new-deployment >/dev/null

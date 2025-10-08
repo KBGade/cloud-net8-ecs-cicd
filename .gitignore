@@ -1,0 +1,25 @@
+# Build
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.orig
+# Logs
+*.log
+# Dotnet artifacts
+*.ide/
+.vs/
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+# Docker
+*.pid
+# macOS
+.DS_Store
