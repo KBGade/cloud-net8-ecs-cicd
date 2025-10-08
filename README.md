@@ -1,5 +1,6 @@
 # Cloud .NET 8 → Docker → AWS ECR/ECS (Fargate) CI/CD
 "Trigger first deploy...."
+hello..
 A minimal, **hire-ready demo** repo that builds a .NET 8 Web API, containerizes it, pushes the image to **Amazon ECR**, and runs it on **Amazon ECS (Fargate)**. Infra is provisioned using **Terraform**. Deployments are triggered from **GitHub Actions** using **OIDC** (no long‑lived keys).
 
 ## What happens on `main` push?
