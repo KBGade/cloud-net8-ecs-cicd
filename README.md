@@ -1,3 +1,6 @@
+**#About me: https://kbgade.github.io/kiran-gade-intro/**
+
+
 # Cloud .NET 8 → Docker → AWS ECR/ECS (Fargate) CI/CD
 "Trigger first deploy...."
 hello..
